@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getWorkoutById } from "@/data/workouts";
+import { getWorkoutById, getWorkoutExercisesWithSets } from "@/data/workouts";
+import { getAllExercises } from "@/data/exercises";
 import EditWorkoutForm from "./_components/EditWorkoutForm";
+import ExerciseLogger from "./_components/ExerciseLogger";
 
 type Props = {
   params: Promise<{ workoutId: string }>;
@@ -17,10 +19,15 @@ export default async function EditWorkoutPage({ params }: Props) {
 
   if (!workout) notFound();
 
+  const [allExercises, workoutExercises] = await Promise.all([
+    getAllExercises(),
+    getWorkoutExercisesWithSets(workoutId),
+  ]);
+
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="mx-auto max-w-2xl">
-        <div className="mb-6">
+      <div className="mx-auto max-w-2xl space-y-6">
+        <div>
           <h1 className="text-2xl font-semibold tracking-tight">
             Edit workout
           </h1>
@@ -41,6 +48,12 @@ export default async function EditWorkoutPage({ params }: Props) {
             />
           </CardContent>
         </Card>
+
+        <ExerciseLogger
+          workoutId={workout.id}
+          allExercises={allExercises}
+          workoutExercises={workoutExercises}
+        />
       </div>
     </div>
   );

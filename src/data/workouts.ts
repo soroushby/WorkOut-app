@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/db";
-import { workouts } from "@/db/schema";
-import { and, eq, gte, lt } from "drizzle-orm";
+import { workouts, workoutExercises, exercises, sets as setsTable } from "@/db/schema";
+import { and, eq, gte, inArray, lt, max } from "drizzle-orm";
 import { startOfDay, addDays } from "date-fns";
 
 export async function createWorkout(name: string, startedAt: Date) {
@@ -49,6 +49,67 @@ export async function updateWorkout(
   return updated;
 }
 
+
+export async function getWorkoutExercisesWithSets(workoutId: number) {
+  const weRows = await db
+    .select({
+      id: workoutExercises.id,
+      order: workoutExercises.order,
+      exerciseName: exercises.name,
+    })
+    .from(workoutExercises)
+    .innerJoin(exercises, eq(workoutExercises.exerciseId, exercises.id))
+    .where(eq(workoutExercises.workoutId, workoutId))
+    .orderBy(workoutExercises.order);
+
+  if (weRows.length === 0) return [];
+
+  const weIds = weRows.map((r) => r.id);
+
+  const setRows = await db
+    .select({
+      id: setsTable.id,
+      workoutExerciseId: setsTable.workoutExerciseId,
+      order: setsTable.order,
+      reps: setsTable.reps,
+      weight: setsTable.weight,
+    })
+    .from(setsTable)
+    .where(inArray(setsTable.workoutExerciseId, weIds))
+    .orderBy(setsTable.order);
+
+  return weRows.map((we) => ({
+    id: we.id,
+    exercise: { name: we.exerciseName },
+    sets: setRows.filter((s) => s.workoutExerciseId === we.id),
+  }));
+}
+
+export async function addWorkoutExercise(workoutId: number, exerciseId: number) {
+  const [{ maxOrder }] = await db
+    .select({ maxOrder: max(workoutExercises.order) })
+    .from(workoutExercises)
+    .where(eq(workoutExercises.workoutId, workoutId));
+
+  const order = (maxOrder ?? -1) + 1;
+
+  const [row] = await db
+    .insert(workoutExercises)
+    .values({ workoutId, exerciseId, order })
+    .returning();
+
+  return row;
+}
+
+export async function addSets(
+  workoutExerciseId: number,
+  setsData: { reps: number; weight: number; order: number }[]
+) {
+  return db
+    .insert(setsTable)
+    .values(setsData.map((s) => ({ workoutExerciseId, ...s })))
+    .returning();
+}
 
 export async function getWorkoutsForDate(date: Date) {
   const { userId } = await auth();
