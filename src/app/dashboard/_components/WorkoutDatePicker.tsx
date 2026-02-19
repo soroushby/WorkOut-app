@@ -28,7 +28,7 @@ export default function WorkoutDatePicker({ date }: { date: Date }) {
           {format(date, "do MMM yyyy")}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent id="workout-date-picker" className="w-auto p-0" align="start">
         <Calendar mode="single" selected={date} onSelect={handleSelect} />
       </PopoverContent>
     </Popover>

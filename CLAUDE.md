@@ -10,6 +10,8 @@ Before generating any code, Claude Code MUST first consult the relevant document
 - /docs/data-fetching.md
 - /docs/data-mutations.md
 - /docs/auth.md
+- /docs/server-components.md
+- /docs/routing.md
 
 ## Commands
 

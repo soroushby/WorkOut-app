@@ -13,10 +13,20 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { createWorkoutAction } from "../actions";
+import { updateWorkoutAction } from "../actions";
 
-export default function NewWorkoutForm({ defaultDate }: { defaultDate: Date }) {
-  const [name, setName] = useState("");
+type Props = {
+  workoutId: number;
+  defaultName: string;
+  defaultDate: Date;
+};
+
+export default function EditWorkoutForm({
+  workoutId,
+  defaultName,
+  defaultDate,
+}: Props) {
+  const [name, setName] = useState(defaultName);
   const [date, setDate] = useState<Date>(defaultDate);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -29,7 +39,7 @@ export default function NewWorkoutForm({ defaultDate }: { defaultDate: Date }) {
     startTransition(async () => {
       try {
         const dateParam = format(date, "yyyy-MM-dd");
-        await createWorkoutAction(name, dateParam);
+        await updateWorkoutAction(workoutId, name, dateParam);
         router.push(`/dashboard?date=${dateParam}`);
       } catch (err) {
         if (err instanceof Error) {
@@ -61,7 +71,7 @@ export default function NewWorkoutForm({ defaultDate }: { defaultDate: Date }) {
               {format(date, "do MMM yyyy")}
             </Button>
           </PopoverTrigger>
-          <PopoverContent id="new-workout-date-picker" className="w-auto p-0" align="start">
+          <PopoverContent id="edit-workout-date-picker" className="w-auto p-0" align="start">
             <Calendar
               mode="single"
               selected={date}
@@ -84,7 +94,7 @@ export default function NewWorkoutForm({ defaultDate }: { defaultDate: Date }) {
           Cancel
         </Button>
         <Button type="submit" className="flex-1" disabled={isPending}>
-          {isPending ? "Creating…" : "Create workout"}
+          {isPending ? "Saving…" : "Save changes"}
         </Button>
       </div>
     </form>
