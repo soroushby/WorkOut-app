@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { parseISO } from "date-fns";
 import WorkoutDatePicker from "./_components/WorkoutDatePicker";
 import WorkoutList from "./_components/WorkoutList";
+import WorkoutListSkeleton from "./_components/WorkoutListSkeleton";
 
 type Props = {
   searchParams: Promise<{ date?: string }>;
@@ -21,7 +23,9 @@ export default async function DashboardPage({ searchParams }: Props) {
         </div>
 
         <WorkoutDatePicker date={date} />
-        <WorkoutList date={date} />
+        <Suspense fallback={<WorkoutListSkeleton />}>
+          <WorkoutList date={date} />
+        </Suspense>
       </div>
     </div>
   );

@@ -17,6 +17,7 @@ export default function WorkoutDatePicker({ date }: { date: Date }) {
   function handleSelect(d: Date | undefined) {
     if (!d) return;
     router.push(`/dashboard?date=${format(d, "yyyy-MM-dd")}`);
+    router.refresh();
   }
 
   return (
