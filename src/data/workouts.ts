@@ -107,7 +107,7 @@ export async function addSets(
 ) {
   return db
     .insert(setsTable)
-    .values(setsData.map((s) => ({ workoutExerciseId, ...s })))
+    .values(setsData.map((s) => ({ workoutExerciseId, ...s, weight: s.weight.toString() })))
     .returning();
 }
 
