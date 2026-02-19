@@ -66,7 +66,7 @@ export async function addExerciseAction(
     return { success: true };
   } catch (e) {
     if (e instanceof z.ZodError) {
-      return { error: e.errors[0]?.message ?? "Invalid input" };
+      return { error: e.issues[0]?.message ?? "Invalid input" };
     }
     return { error: "Something went wrong" };
   }
