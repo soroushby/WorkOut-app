@@ -10,7 +10,8 @@ type Props = {
 
 export default async function DashboardPage({ searchParams }: Props) {
   const { date: dateParam } = await searchParams;
-  const date = dateParam ? parseISO(dateParam) : new Date();
+  const parsedDate = dateParam ? parseISO(dateParam) : new Date();
+  const date = isNaN(parsedDate.getTime()) ? new Date() : parsedDate;
 
   return (
     <div className="min-h-screen bg-background p-6">
