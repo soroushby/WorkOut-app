@@ -27,11 +27,14 @@ CLERK_SECRET_KEY=...
 
 ## Middleware: Protecting Routes
 
-Use Clerk's `clerkMiddleware` in `src/middleware.ts` to protect routes.
+Use Clerk's `clerkMiddleware` in `src/proxy.ts` to protect routes.
+
+**In Next.js 16, the middleware file is `src/proxy.ts` — do NOT use `src/middleware.ts`.**
 
 ```ts
-// src/middleware.ts
+// src/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
 
@@ -42,7 +45,10 @@ export default clerkMiddleware(async (auth, req) => {
 });
 
 export const config = {
-  matcher: ["/((?!_next|.*\\..*).*)"],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 };
 ```
 

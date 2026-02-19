@@ -26,11 +26,14 @@ Every page in this application (beyond the public landing/auth pages) must be ne
 - Do NOT protect routes inside individual page components using redirects
 - The middleware is the single, authoritative enforcement point for authentication
 
-The middleware must live at `src/middleware.ts` and use Clerk's `clerkMiddleware`:
+**In Next.js 16, the middleware file is `src/proxy.ts` (not `middleware.ts`).** Do NOT create a `src/middleware.ts` — Next.js 16 will error if both files exist.
+
+The proxy must use Clerk's `clerkMiddleware`:
 
 ```ts
-// src/middleware.ts
+// src/proxy.ts
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher(["/", "/sign-in(.*)", "/sign-up(.*)"]);
 
@@ -38,10 +41,21 @@ export default clerkMiddleware(async (auth, req) => {
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
+
+  // Redirect signed-in users away from the homepage to the dashboard
+  if (req.nextUrl.pathname === "/") {
+    const { userId } = await auth();
+    if (userId) {
+      return NextResponse.redirect(new URL("/dashboard", req.url));
+    }
+  }
 });
 
 export const config = {
-  matcher: ["/((?!_next|.*\\..*).*)"],
+  matcher: [
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    "/(api|trpc)(.*)",
+  ],
 };
 ```
 
