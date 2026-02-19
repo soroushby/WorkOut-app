@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { format, differenceInMinutes } from "date-fns";
 import { Dumbbell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -33,21 +34,23 @@ export default async function WorkoutList({ date }: Props) {
               : "In progress";
 
           return (
-            <Card key={workout.id}>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-base">{workout.name}</CardTitle>
-                  <span className="text-sm text-muted-foreground">
-                    {duration}
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  {format(workout.startedAt, "h:mm a")}
-                </p>
-              </CardContent>
-            </Card>
+            <Link key={workout.id} href={`/dashboard/workout/${workout.id}`}>
+              <Card className="transition-colors hover:bg-muted/50">
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">{workout.name}</CardTitle>
+                    <span className="text-sm text-muted-foreground">
+                      {duration}
+                    </span>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    {format(workout.startedAt, "h:mm a")}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           );
         })
       )}
