@@ -8,6 +8,8 @@ Before generating any code, Claude Code MUST first consult the relevant document
 
 - /docs/ui.md
 - /docs/data-fetching.md
+- /docs/data-mutations.md
+- /docs/auth.md
 
 ## Commands
 
